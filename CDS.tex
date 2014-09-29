@@ -1,0 +1,64 @@
+% Tout ce qui est mis derriÃ¨re un Â«Â %Â Â» n'est pas vu par LaTeX
+% On appelle cela des Â«Â commentairesÂ Â».  Les commentaires permettent de
+% commenter son document - comme ce que je suis en train de faire
+% actuellement - et de cacher du code - cf. la ligne \pagestyle.
+
+\documentclass[a4paper]{article}
+
+% Options possibles : 10pt, 11pt, 12pt (taille de la fonte)
+%                     oneside, twoside (recto simple, recto-verso)
+%                     draft, final (stade de dÃ©veloppement)
+
+\usepackage[utf8]{inputenc}   % LaTeX, comprends les accents !
+\usepackage[T1]{fontenc}      % Police contenant les caractÃ¨res franÃ§ais
+\usepackage[francais]{babel}  % Placez ici une liste de langues, la
+                              % derniÃ¨re Ã©tant la langue principale
+
+\usepackage[a4paper]{geometry}% RÃ©duire les marges
+% \pagestyle{headings}        % Pour mettre des entÃªtes avec les titres
+                              % des sections en haut de page
+
+\title{Lorem ipsum}           % Les paramÃ¨tres du titreÂ : titre, auteur, date
+\author{Simon Matet \and Antoine Sauvage}
+\date{}                       % La date n'est pas requise (la date du
+                              % jour de compilation est utilisÃ©e en son
+			      % absence)
+
+\sloppy                       % Ne pas faire dÃ©border les lignes dans la marge
+
+\begin{document}
+
+\maketitle                    % Faire un titre utilisant les donnÃ©es
+                              % passÃ©es Ã  \title, \author et \date
+
+\begin{abstract}
+\end{abstract}
+
+\tableofcontents              % Table des matiÃ¨res
+
+% \part{Titre}                % Commencer une partie...
+
+\section{Donec}               % Commencer une section, etc.
+
+\subsection{Praesent}         % Section plus petite
+
+
+% \subsubsection{Titre}       % Encore plus petite
+
+% \paragraph{Titre}           % Toutes petites sections (le nom \paragraph
+                              % n'est pas trÃ¨s bien choisi)
+
+% \subparagraph{Titre}        % La derniÃ¨re
+
+% \appendix                   % CommenÃ§ons les annexes
+
+% \section{Titre}             % Annexe A
+
+% \section{Titre}             % Annexe B
+
+% \listoffigures              % Table des figures
+
+% \listoftables               % Liste des tableaux
+
+\end{document}
+
