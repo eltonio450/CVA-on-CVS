@@ -4,7 +4,7 @@
 % actuellement - et de cacher du code - cf. la ligne \pagestyle.
 
 \documentclass[a4paper]{article}
-
+\usepackage{ dsfont }
 % Options possibles : 10pt, 11pt, 12pt (taille de la fonte)
 %                     oneside, twoside (recto simple, recto-verso)
 %                     draft, final (stade de dÃ©veloppement)
@@ -18,7 +18,7 @@
 % \pagestyle{headings}        % Pour mettre des entÃªtes avec les titres
                               % des sections en haut de page
 
-\title{Lorem ipsum}           % Les paramÃ¨tres du titreÂ : titre, auteur, date
+\title{Valuation CVA sur CDS}           % Les paramÃ¨tres du titreÂ : titre, auteur, date
 \author{Simon Matet \and Antoine Sauvage}
 \date{}                       % La date n'est pas requise (la date du
                               % jour de compilation est utilisÃ©e en son
@@ -32,15 +32,36 @@
                               % passÃ©es Ã  \title, \author et \date
 
 \begin{abstract}
+Le but de ce document est de modéliser le coût induit sur un contrat de type CDS par le risque de la contrepartie.
 \end{abstract}
 
 \tableofcontents              % Table des matiÃ¨res
 
 % \part{Titre}                % Commencer une partie...
 
-\section{Donec}               % Commencer une section, etc.
+\section{Présentation générale}               % Commencer une section, etc.
 
-\subsection{Praesent}         % Section plus petite
+\subsection{Contexte}         % Section plus petite
+Nous appelerons un CDS sans risque un CDS telle que le risque de défaut de la contrepartie est nul, et un CDS avec risque un CDS ou ce risque n'est pas nul.
+\subsection{Pricing général}
+Le prix d'un CDS est défini par la somme (ici continue) des cash-flows futurs, à leur valeur actualisée.
+Dans le cas de cash-flows incertains, c'est leur espérence actualisée qui est prise en compte.
+\subsubsection{CDS sans risque}
+En cas de faillite de la firme 1 (le sous-jacent du CDS), le taux de recouvrement est de $R_{1}$, et donc la quantité que doit rembourser la firme 2 est de $ (1-R_{1})$.
+Le coût est alors de : 
+\begin{equation}
+(1 - R_{1})\beta (\tau_{1})
+\end{equation}
+où $\beta(t)$ représente le facteur d'actualisation.
+Cet événement n'a lieu que si le temps de défaut $\tau_{1}$ est antérieur à la maturité $T$.
+A tout instant $t$, la valeur d'un CDS sans risque est donc de :
+\begin{equation}
+-\kappa \int_{t}^{\tau_{1} T}\beta(s-t)ds + (1 - R_{1})\beta(\tau_{1})\mathds{1}_{t<\tau_{1}<T}
+\end{equation}
+ce qui mène, lorsque l'on observe depuis le temps à :
+
+
+
 
 
 % \subsubsection{Titre}       % Encore plus petite
