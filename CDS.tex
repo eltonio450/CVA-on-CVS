@@ -1,24 +1,22 @@
 % Tout ce qui est mis derriÃ¨re un Â«Â %Â Â» n'est pas vu par LaTeX
-% On appelle cela des Â«Â commentairesÂ Â».  Les commentaires permettent de
+% On appelle cela des Â«Â commentairesÂ Â».Les commentaires permettent de
 % commenter son document - comme ce que je suis en train de faire
 % actuellement - et de cacher du code - cf. la ligne \pagestyle.
 
-\documentclass[a4paper]{article}
-\usepackage{ dsfont }
-% Options possibles : 10pt, 11pt, 12pt (taille de la fonte)
-%                     oneside, twoside (recto simple, recto-verso)
-%                     draft, final (stade de dÃ©veloppement)
 
-\usepackage[utf8]{inputenc}   % LaTeX, comprends les accents !
-\usepackage[T1]{fontenc}      % Police contenant les caractÃ¨res franÃ§ais
-\usepackage[francais]{babel}  % Placez ici une liste de langues, la
-                              % derniÃ¨re Ã©tant la langue principale
+\documentclass[a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{graphicx}
 
 \usepackage[a4paper]{geometry}% RÃ©duire les marges
 % \pagestyle{headings}        % Pour mettre des entÃªtes avec les titres
                               % des sections en haut de page
 
-\title{Valuation CVA sur CDS}           % Les paramÃ¨tres du titreÂ : titre, auteur, date
+\title{Credit Valuation Adjustment sur Credit Default Swap}           % Les paramÃ¨tres du titreÂ : titre, auteur, date
 \author{Simon Matet \and Antoine Sauvage}
 \date{}                       % La date n'est pas requise (la date du
                               % jour de compilation est utilisÃ©e en son
@@ -32,35 +30,73 @@
                               % passÃ©es Ã  \title, \author et \date
 
 \begin{abstract}
-Le but de ce document est de modéliser le coût induit sur un contrat de type CDS par le risque de la contrepartie.
+Le Credit Default Swap (CDS) est un type de contrat permettant à un créancier de s'assurer contre le risque de défaut d'un débiteur.
+ 
+Cependant, l'institution émettrice d'un CDS peut elle même faire défaut avant ou en même temps que le débiteur.
+ La prise en compte de cette possibilité dans le \textit{pricing} d'un CDS et les stratégies pour se prémunir de ce risque de contrepartie font l'objet de ce rapport.
+
 \end{abstract}
 
 \tableofcontents              % Table des matiÃ¨res
 
-% \part{Titre}                % Commencer une partie...
+% \part{Titre}                % Commencer une partie.
+.
+.
+
 
 \section{Présentation générale}               % Commencer une section, etc.
 
-\subsection{Contexte}         % Section plus petite
-Nous appelerons un CDS sans risque un CDS telle que le risque de défaut de la contrepartie est nul, et un CDS avec risque un CDS ou ce risque n'est pas nul.
+
+\subsection{Contexte et notations}         % Section plus petite
+Nous appelerons un CDS sans risque un CDS tel que la probabilité de défaut de la contrepartie est nulle et un CDS avec risque un CDS où cette probabilité est strictement positive.
+ Dans le cadre de ce rapport, une firme 0 détient une unité de dette à risque de la firme 1, qui peut faire défaut.
+ Dans ce cas elle rembourse ses dettes à hauteur de $R_{1} \in \left[ 0, 1 \right[$.
+ Pour se couvrir contre ce risque, la firme 0 achète un CDS à la firme 2 et s'engage à verser une prime $\kappa$ en échange d'une assurance contre le défaut de 1 jusqu'à la date de maturité $T$.
+ La valeur du contrat dépend cependant de la probabilité que l'assureur 2 fasse défaut avant son terme.
+\\ \\
+Nous noterons donc :\\
+$\beta (t)$ Le taux d'actualisation\\
+$T$ La date de maturité du contrat\\
+$R_{1}$ Le taux de recouvrement de la firme 1\\
+$R_{2}$ Le taux de recouvrement de la firme 2\\
+$\tau_{1} (\omega)$ Temps aléatoire du défaut de la firme 1\\
+$\tau_{2} (\omega)$ Temps aléatoire du défaut de la firme 2\\
+$\kappa$ La prime versée par le détenteur du CDS à la firme 2 à chaque unité de temps\\
+$p (t, \omega)$ Le cash flow à venir après la date $t$ pour une réalisation $\omega$ de la firme 2 vers la firme détentrice du CDS en supposant que 2 ne fasse jamais défaut\\
+$\pi (t, \omega)$ Le cash flow à venir après la date $t$ pour une réalisation $\omega$ de la firme 2 vers la firme détentrice du CDS dans le cas où 2 peut faire défaut\\
+$P (t, \omega) = \mathbb{E}_{t} [p]$ le cash-flow espéré conditionnellement à l'information connue à la date t, sans risque de contrepartie\\
+$\Pi (t, \omega) = \mathbb{E}_{t} [\pi]$ le cash-flow espéré conditionnellement à l'information connue à la date t, avec risque de contrepartie
+
+
 \subsection{Pricing général}
-Le prix d'un CDS est défini par la somme (ici continue) des cash-flows futurs, à leur valeur actualisée.
-Dans le cas de cash-flows incertains, c'est leur espérence actualisée qui est prise en compte.
-\subsubsection{CDS sans risque}
-En cas de faillite de la firme 1 (le sous-jacent du CDS), le taux de recouvrement est de $R_{1}$, et donc la quantité que doit rembourser la firme 2 est de $ (1-R_{1})$.
-Le coût est alors de : 
-\begin{equation}
-(1 - R_{1})\beta (\tau_{1})
-\end{equation}
-où $\beta(t)$ représente le facteur d'actualisation.
-Cet événement n'a lieu que si le temps de défaut $\tau_{1}$ est antérieur à la maturité $T$.
-A tout instant $t$, la valeur d'un CDS sans risque est donc de :
-\begin{equation}
--\kappa \int_{t}^{\tau_{1} T}\beta(s-t)ds + (1 - R_{1})\beta(\tau_{1})\mathds{1}_{t<\tau_{1}<T}
-\end{equation}
-ce qui mène, lorsque l'on observe depuis le temps à :
+Dans le cadre d'un marché sans possibilités d'arbitrage, le prix d'un CDS à la date t est défini par l'espérance des cash-flows futurs actualisés.
 
+\subsubsection{Cash-flow pour un CDS sans risque}
+À la date s, la firme 1 doit verser à 2 la prime $\kappa$.
+ Si de plus $\tau_1 = s$, alors 1 rembourse uniquement $R_1$ de sa dette et 2 verse donc les $1-R_1$ restant à 0.
+ En remarquant que le coefficient d'acutalisation entre t <  s est $\frac{\beta_{s}}{\beta_{t}}$, le cash-flow lié au CDS à la date s actualisé pour la date t est donc : 
+\begin{equation*}
+\frac{- \beta(s) \kappa+ \beta(\tau_{1}) \left( 1 - R_{1} \right)  \mathbf{ 1 }_{\tau_{1} } \left( s \right) }{\beta (t)} 
+\end{equation*}
+En intégrant entre t et $T \wedge \tau_{1}$ on trouve la formule du cash-flow futur à partir de la date t (il s'agit par exemple du prix maximal qu'un acheteur omniscient serait prêt à payer pour le contrat à la date t).
 
+\begin{equation}
+\beta (t) p(t) = -\kappa \int\limits_{t}^{T \wedge \tau_{1}} \beta(s)ds + \beta(\tau_{1})\left( 1 - R_{1} \right)\mathbf{ 1 }_{\left] t, T \right[}(\tau_{1})
+\end{equation}
+\subsubsection{Cas d'un CDS risqué}
+On reprend la précédente analyse avec cette fois deux nouveau termes.
+ Le premier correspond au défaut de 1 et 2 en même temps.
+ Dans ce cas, 2 devrait rembourser $1-R_{1}$.
+ Suite à son défaut, 2 ne rembourse que $R_{2}(1-R_{1})$, d'où un terme en $\mathbf{1}_{\tau_{1} = \tau_{2} = s} (1-R_{2})(1-R_{1})$.
+ Par ailleurs, si seul 2 fait défaut avant 1, soit le contrat a un prix positif à cet instant et 2 doit donc a 0 $P_{s}^{+}$ mais ne lui rembourse que $R_{2}P_{s}^{+}$ car il est en défaut.
+ Sinon, 0 rembourse la valeur du contrat $-P_{s}^{-}$.
+ En sommant jusqu'à la fin du contrat, ie.
+ $T \wedge \tau_{1} \wedge \tau_{2}$, on trouve :
+\begin{multline}
+\beta(t)\pi(t) = -\kappa \int\limits_{t}^{T \wedge \tau_{1} \wedge \tau_{2}} \beta(s)ds + \beta\left(\tau_{1}\right)\left( 1 - R_{1} \right)\mathbf{ 1 }_{\left] t, T \wedge \tau_{2} \right[}(\tau_{1}) \\
++ \beta(\tau_{1}) R_{2} \left( 1 - R_{1} \right) \mathbf{1}_{t < \tau_{1} = \tau_{2} < T} 
++ \beta(\tau_{2}) \left( R_{2}P_{\tau_{2}}^{+} - P_{\tau_{2}}^{-} \right) \mathbf{1}_{t < \tau_{2} < T \wedge \tau_{1}}
+\end{multline}
 
 
 
@@ -82,4 +118,5 @@ ce qui mène, lorsque l'on observe depuis le temps à :
 % \listoftables               % Liste des tableaux
 
 \end{document}
+
 
