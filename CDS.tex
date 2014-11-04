@@ -68,13 +68,13 @@ $P (t, \omega) = \mathbb{E}_{t} [p]$ le cash-flow espéré conditionnellement à
 $\Pi (t, \omega) = \mathbb{E}_{t} [\pi]$ le cash-flow espéré conditionnellement à l'information connue à la date t, avec risque de contrepartie
 
 
-\subsection{Pricing général}
+\subsection{Analyse des cash-flows}
 Dans le cadre d'un marché sans possibilités d'arbitrage, le prix d'un CDS à la date t est défini par l'espérance des cash-flows futurs actualisés.
 
 \subsubsection{Cash-flow pour un CDS sans risque}
 À la date s, la firme 1 doit verser à 2 la prime $\kappa$.
  Si de plus $\tau_1 = s$, alors 1 rembourse uniquement $R_1$ de sa dette et 2 verse donc les $1-R_1$ restant à 0.
- En remarquant que le coefficient d'actualisation entre t <  s est $\frac{\beta_{s}}{\beta_{t}}$, le cash-flow lié au CDS à la date s actualisé pour la date t est donc : 
+ En remarquant que le coefficient d'actualisation entre $t\leq s$ est $\frac{\beta_{s}}{\beta_{t}}$, le cash-flow lié au CDS à la date s actualisé pour la date t est donc : 
 \begin{equation*}
 \frac{- \beta(s) \kappa+ \beta(\tau_{1}) \left( 1 - R_{1} \right)  \mathbf{ 1 }_{\tau_{1} } \left( s \right) }{\beta (t)} 
 \end{equation*}
@@ -84,7 +84,7 @@ En intégrant entre t et $T \wedge \tau_{1}$ on trouve la formule du cash-flow f
 \beta (t) p(t) = -\kappa \int\limits_{t}^{T \wedge \tau_{1}} \beta(s)ds + \beta(\tau_{1})\left( 1 - R_{1} \right)\mathbf{ 1 }_{\left] t, T \right[}(\tau_{1})
 \end{equation}
 \subsubsection{Cas d'un CDS risqué}
-On reprend la précédente analyse avec cette fois deux nouveau termes.
+On reprend la précédente analyse avec cette fois deux nouveaux termes.
  Le premier correspond au défaut de 1 et 2 en même temps.
  Dans ce cas, 2 devrait rembourser $1-R_{1}$.
  Suite à son défaut, 2 ne rembourse que $R_{2}(1-R_{1})$, d'où un terme en $\mathbf{1}_{\tau_{1} = \tau_{2} = s} (1-R_{2})(1-R_{1})$.
@@ -97,10 +97,125 @@ On reprend la précédente analyse avec cette fois deux nouveau termes.
 + \beta(\tau_{1}) R_{2} \left( 1 - R_{1} \right) \mathbf{1}_{t < \tau_{1} = \tau_{2} < T} 
 + \beta(\tau_{2}) \left( R_{2}P_{\tau_{2}}^{+} - P_{\tau_{2}}^{-} \right) \mathbf{1}_{t < \tau_{2} < T \wedge \tau_{1}}
 \end{multline}
+\pagebreak
 
+\section{Modèle}
+\subsection{Hypothèses}
+On modélise la santé financière des entreprises $i, i \in \lbrace 1, 2 \rbrace$ par deux processus d'Itô corrélés, 
+\begin{eqnarray}
+dX^{1}_{t} &=& b_{1}dt + \sigma_{1}dW_{t}^{1} \\
+dX^{2}_{t} &=& b_{2}dt + \sigma_{2} \left(\rho dW_{t}^{1} + \sqrt{1 - \rho^{2}} dW_{t}^{2}\right)
+\end{eqnarray}
+Où $W_{1}$ et $W_{2}$ sont deux mouvements browniens indépendants et $\rho$ la corrélation entre les deux processus d'Itô (on vérifie sans peine que $\rho dW^{1} + \sqrt{1 - \rho^{2}} dW^{2}$ donne un mouvement brownien de covariance $\rho$ avec $W_{1}$, en calculant les fonctions caractéristiques des accroissements par exemple). On notera $\mathbb{X}$ la filtration canoniquement associée à $(X^{1}, X^{2})$. On suppose de plus que les processus $b^{i}, \sigma^{i}$ sont $\mathbb{X}$ adaptés et vérifient les conditions d'intégrabilité usuelles ($b^{i}$ intégrables, $\sigma^{i}$ de carré intégrable presque sûrement). \\ \\
+On introduit ensuite trois variables de défaut qui sont les temps d'arrêt $d^{1}$, temps de défaut endogène de la firme 1, $d^{2}$, temps de défaut endogène de la firme 2 et $d^{3}$, temps de défaut commun exogène. On suppose que ce sont des variables exponentielles telles que :
+\begin{eqnarray}
+\mathbb{P}\left( d^{i} > t \mid \mathbb{X}_{t} \right) = \int \limits_{0}^{t} \exp \left( -l_{i} (t, X^{i}_{s}) \right) ds\,,\qquad  i = 1, 2, 3
+\end{eqnarray}
+Avec la particularité que $l_{3}$ est une fonction déterministe qui dépend pas des $X^{(1,2)}$ et que $\mathbb{P} (d^{3} < t)$ est indépendant de $\mathbb{X}_{t} \vee \sigma(d^{1}) \vee \sigma(d^{2})$ .
+On suppose en outre que les temps de défaut endogènes sachant $\mathbb{X}$ sont indépendants, ie. 
+\begin{equation*}
+\mathbb{P} \left( d^{1} > t \ et \ d^{2} > s \mid \mathbb{X}_{t\vee s} \right) = \mathbb{P} \left( d^{1} > t \mid \mathbb{X}_{t} \right)  \mathbb{P} \left( d^{2} > s \mid \mathbb{X}_{s} \right)
+\end{equation*}
+Les temps de défaut réellement observés pour chaque firme seront donc $\tau^{1} = d^{1} \wedge d^{3}$ et  $\tau^{2} = d^{2} \wedge d^{3}$. On utilisera en outre les fonctions indicatrices de défaut :
+\begin{equation*}
+H^{i}_{t} = \mathbf{1}_{\left]t, +\infty \right]} (\tau^{i})
+\end{equation*}
+Et $\mathbb{H}$ la filtration associée. Enfin, on posera $\mathbb{F} = \mathbb{X} \vee \mathbb{H}$. \\ \\
 
+\subsection{Générateurs infinitésimaux et premières propriétés}
+On peut maintenant calculer le générateur du processus aléatoire $(X, H) = (X_{1}, X_{2}, H_{1}, H_{2})$. Pour $u \in \mathcal{C}^{1, 2}$ ($\mathcal{C}^{1}$ pour la première variable, $\mathcal{C}^{2}$ pour la seconde variable et sans régularité pour la troisième qui est dans un espace discret de toute façon), on a
+\begin{equation*}
+\mathcal{A}u : (x,t)
+\rightarrow \space \lim_{h\downarrow 0} \frac {\mathbb{E}^{x}(u(t+h, X_{t+h}, e_{t+h}) - u(t,x,e)}{h}
+\end{equation*}
+\begin{multline*}
+\mathcal{A}u(t,x,e) = \lim_{h\downarrow 0} \frac {\mathbb{E}^{x}(u(t+h, X_{t+h}, e_{t+h}) - u(t,x,e)}{h} \\
+= \lim_{h\downarrow 0} \mathbb{E}^{x} \left[
+\mathbb{E} \left[ \frac{u (t+h, X_{t+h}, e_{t+h}) - u(t+h, X_{t+h}, e_{t})}{h} \mid \mathbb{X}_{t+h} \vee \mathbb{F}_{t}  \right]
+ +  \frac {u(t+h, X_{t+h}, e_{t}) -  u(t, X_{t}, e_{t})}{h} \right]
+\end{multline*}
+Par conditionnement itéré. On décompose le premier terme en :
+\begin{multline*}
+\lim_{h\downarrow 0} \mathbb{E}^{x} \left[
+\mathbb{E} \left[ \frac{u (t+h, X_{t+h}, e_{t+h}) - u(t+h, X_{t+h}, e_{t})}{h} \mid \mathbb{X}_{t+h} \vee \mathbb{F}_{t}  \right]\right] \\
+=  \lim_{h\downarrow 0} \mathbb{E}^{x} \left[ \sum \limits_{\epsilon \in \lbrace 0, 1 \rbrace^{2}} \mathbb{E} \left[ \frac{u (t+h, X_{t+h}, \epsilon) - u(t+h, X_{t+h}, e)}{h} \mathbf{1}_{e_{t+h} = \epsilon} \mid \mathbb{X}_{t+h} \vee \mathbb{F}_{t}  \right] \right]
+\end{multline*}
+Au plus trois transitions entre $\epsilon$ et e son possibles : défaut de 1, défaut de 2 et défaut simultanée. On posera, pour $e  \in \lbrace 0, 1 \rbrace^{2}$, $e^{i}$ le vecteur dont on a remplacé la i-ième coordonnée par 1. Alors, si $e \neq e^{i}$
+\begin{eqnarray*}
+\mathbb{P} \left(e_{t+h} = e^{i} \mid \mathbb{X}_{t+h} \vee \mathbb{F}_{t}  \right) = \int \limits_{t}^{t+h} \exp -(l_{i} (X^{i}_{s}, s))ds + o(h)
+\end{eqnarray*}
+Le o(h) rendant compte de deux transitions successives (la probabilité d'un tel évênement est en $\mathcal{O} (h^2)$). On trouve le même type d'égalité pour le défaut commun et, en remarquant que pour $e = e^{i}$ la différence des fonctions u est de toute façon nulle, en faisant tendre h vers 0 et par continuité du processus d'Itô qui vaut x en t, on trouve que le premier terme vaut :
+\begin{equation}
+T_{1} = \sum \limits_{1 \leqslant i \leqslant 2} l_{i} (t, x_{i}) (u(t, x, e^{i}) - u(t, x, e)) + l_{3}(t)(u(t,x,(1,1)) - u(t,x,e))
+\end{equation}
+Le second terme se calcule grâce à la formule d'Itô :
+\begin{multline*}
+u(t+h, X_{t+h}, e) - u(t, X_{t}, e) = \int \limits_{t}^{t+h} Du(s,X_{s},e)\cdot dX_{s} +\\ \int \limits_{t}^{t+h} \left( u_{t}(s,X_{s}, e) + \frac{1}{2} (\sigma_{1}^{2} \partial_{x_1^2}^2u(s, X_{s}, e) + \sigma_{2}^{2} \partial_{x_2^2}^2u(s, X_{s}, e) + 2\rho\sigma_{1}\sigma_{2}\partial_{x_1 x_2}^2 u(s, X_{s}, e)) \right) ds
+\end{multline*}
+Encore une fois, par continuité des différentes fonctions (hypothèse sur u à expliciter, il faut que $Du(t, X_t, e) \in \mathbb{H}^2$), on trouve finalement
+\begin{multline}
+\mathcal{A}u(t,x,e) = \partial_{t}  u(t,x,e) + \sum \limits_{1\leq i\leq2}l_i(t,x_i)(u(t,x,e^i) - u(t,x,e)) + l_3(t)(u(t,x,(1,1)) - u(t,x,e))\\
+ + \sum \limits_{1\leq i\leq2} \left( b_i(t,x_i)\partial_{x_i} u(t,x,e) + \frac{1}{2}\sigma_i^2(t,x_i)\partial^2_{x_i^2}u(t,x,e) \right) + \rho \sigma_1(t,x_1)\sigma_2(t,x_2)\partial^2_{x_1,x_2}u(t,x,e) 
+\end{multline}
 
-% \subsubsection{Titre}       % Encore plus petite
+\section{Pricing}
+\subsection{CDS non risqué}
+Le prix du CDS étant donné par l'espérance du cash-flow actualisé, on cherche à calculer $P_{t} = \mathbb{E}_{t} \left[ p^{t} \right]$ où $p^{t}$ est donné par l'équation (1). Pour cela, on sépare le processus $P_{t}$ en une intégrale par rapport au temps et un terme d'espérance nulle.
+Ainsi, \\
+\begin{equation*}
+\beta(t) p^t = -\kappa \int \limits_{t}^{T}\beta(s)(1-H^{1}_{s})ds + (1-R_{1})\int \limits_{t}^{T} \beta(s) dH_{s}^{1}
+\end{equation*}
+Où le dernier terme est, pour $\omega$ fixé, l'intégrale de Stieltjes par rapport à la fonction croissante $H^{1}_{s}$.\\ \\
+En introduisant
+\begin{equation*}
+p(s, x) := (1-R_1)q_1(t,x) - \kappa
+\end{equation*}
+On trouve 
+\begin{equation}
+\beta(t) p^t  =  \int \limits_{t}^{T}\beta(s)(1-H^{1}_{s})p(s, X^{1}_s)ds + (1-R_{1})\int \limits_{t}^{T} \beta(s) dM_{s}^{1}
+\end{equation}
+Avec $M_t^i := H_t^i - \int \limits_0^t q_i (s, X_s, H_s) ds$ \\
+Or, le processus $M_t^i$ ainsi défini est une martingale bornée puisque, dans le cas général, $u(t, X^i_t, H^i_t) - \int \limits_0^t \mathcal{A}u(s, X^i_s, H^i_s)ds$ est une martingale pour $u \in \mathcal{C}^{1, 2}$. \\
+En effet,
+\begin{multline*}
+d_t\mathbb{E}_s \left[ u(t, X^i_t, H^i_t) - \int \limits_0^t \mathcal{A}u(r, X^i_r, H^i_r)dr \right] \\
+= \lim \limits_{h \rightarrow 0} \mathbb{E}_s \left[ \frac{\mathbb{E}_t (u(t+h, X^i_{t+h}, H^i_{t+h})) - u(t, X^i_t, H^i_t)}{h} - \mathcal{A}u(t,X^i_t,H^i_t)\right]
+= 0
+\end{multline*}
+Par conditionnements itérés et en intervertissant limite et intégrale sous les hypothèses appropriées (Dérivées spatiales et sauts bornés par exemple. La formule pour le générateur aléatoire montre alors qu'il est borné et qu'on peut intervertir pour le terme avec l'intégrale. De même, les formules de 2.2 permettent de montrer que le premier terme est borné). En appliquant le résultat à la projection sur la dernière variable, on obtient le résultat. \\ \\
+Il suit par un théorème d'intégration par rapport à une martingale bornée que l'espérance en t du second terme de (8) est nulle et donc :
+\begin{equation*}
+\mathbb{E}_{t} \left[ \beta(t)p_{t} \right] =  \mathbb{E}_{t} \left[ \int \limits_{t}^{T}\beta(s)(1-H^{1}_{s})p(s, X^{1}_s)ds \right]
+\end{equation*}
+Or, le second terme de cette équation s'annule quand $H^i_t = 1$. On peut donc définir la variable aléatoire
+\begin{equation*}
+V = \frac{\mathbb{E}_{t} \left[ \int \limits_{t}^{T}\beta(s)(1-H^{1}_{s})p(s, X^{1}_s)ds \right]}{\beta(t)(1- H^i_t)}
+\end{equation*}
+Avec $V=0$ si $H^i_t = 1$. Par la propriété de Markov de X et H, V est $\sigma(X_t^i,\, H^i_t)$ mesurable, ie. $V = f(t,X^i_t, H^i_t)$ En posant $v(t, X^i_t) = f(t,X^i_t, 0)$ on obtient 
+\begin{equation*}
+\beta(t)P_{t} =  \mathbb{E}_{t} \left[ \int \limits_{t}^{T}\beta(s)(1-H^{1}_{s})p(s, X^{1}_s)ds \right] = (1 - H^i_t)\beta(t)v(t,X_t^i)
+\end{equation*}
+Par ailleurs, si v est suffisamment différentiable, on trouve en calculant le générateur infinitésimal des deux membres et grâce au résultat de 2.2 :
+\begin{equation}
+\left\{
+\begin{split}
+v(T, x) = 0,\ x \in \mathbb{R} \\
+\left(\partial_t + b_i(t,x_i)\partial_{x_i} + \frac{1}{2}\sigma_i^2(t,x_i)\partial^2_{x^2_i}\right)v(t,x_i) - (r+q_i(t,x_i))v(t,x_i) + p(t,x_i) =0, \ t\in\left[0,T\right[,\ x_i \in \mathbb{R}
+\end{split}
+\right.
+\end{equation}
+Sous certaines hypothèses de régularité et de croissance (à expliciter), on en déduit par le théorème de Feynman-Kac :
+\begin{equation}
+v(t,x) = \mathbb{E} \left[ \int \limits_t^T e^{-\int \limits_{t}^{s} (r + q_i(r, X^i_r))dr} p(s, X^i_s)ds \mid X^i_t = x\right]
+\end{equation}
+
+\subsection{CDS risqué}
+(parallèle rapide)
+%Le même cheminement donne, en posant
+%\begin{equation}
+%\pi (t,x) = (1-R_1) \left[ l_1 (t,x_1) + R_2 l_3(t) \right] + l_2 %\left[ R_2 v^{+}(t,x_1) - v^{-}(t,x_1) \right] - \kappa
+%\end{equation}
+% \subsubsection{Titre}      % Encore plus petite
 
 % \paragraph{Titre}           % Toutes petites sections (le nom \paragraph
                               % n'est pas trÃ¨s bien choisi)
@@ -112,8 +227,6 @@ On reprend la précédente analyse avec cette fois deux nouveau termes.
 % \section{Titre}             % Annexe A
 
 % \section{Titre}             % Annexe B
-
-% \listoffigures              % Table des figures
 
 % \listoftables               % Liste des tableaux
 
