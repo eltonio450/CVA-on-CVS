@@ -1,9 +1,3 @@
-% Tout ce qui est mis derriÃ¨re un Â«Â %Â Â» n'est pas vu par LaTeX
-% On appelle cela des Â«Â commentairesÂ Â».Les commentaires permettent de
-% commenter son document - comme ce que je suis en train de faire
-% actuellement - et de cacher du code - cf. la ligne \pagestyle.
-
-
 \documentclass[a4paper]{article}
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
@@ -15,6 +9,21 @@
 \usepackage[a4paper]{geometry}% RÃ©duire les marges
 % \pagestyle{headings}        % Pour mettre des entÃªtes avec les titres
                               % des sections en haut de page
+
+
+% Theorem Styles
+\newtheorem{theorem}{Théorème}[section]
+\newtheorem{lemma}[theorem]{Lemme}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollaire}
+% Definition Styles
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{example}{Exemple}[section]
+\theoremstyle{remark}
+\newtheorem{remark}{Remarque}
+\renewcommand{\proofname}{Preuve}
+\renewcommand\refname{Références}
 
 \title{Credit Valuation Adjustment sur Credit Default Swap}           % Les paramÃ¨tres du titreÂ : titre, auteur, date
 \author{Simon Matet \and Antoine Sauvage}
@@ -30,18 +39,15 @@
                               % passÃ©es Ã  \title, \author et \date
 
 \begin{abstract}
-Le Credit Default Swap (CDS) est un type de contrat permettant à un créancier de s'assurer contre le risque de défaut d'un débiteur.
- 
-Cependant, l'institution émettrice d'un CDS peut elle même faire défaut avant ou en même temps que le débiteur.
- La prise en compte de cette possibilité dans le \textit{pricing} d'un CDS et les stratégies pour se prémunir de ce risque de contrepartie font l'objet de ce rapport.
+Le Credit Default Swap (CDS) est un type de contrat permettant à un créancier de s'assurer contre le risque de défaut d'un débiteur. Cependant, l'institution émettrice d'un CDS peut elle même faire défaut avant ou en même temps que le débiteur. Cela conduit à une Credit Valuation Adjustment (CVA) entre le prix d'un CDS non risqué et d'un CDS où la contrepartie peut faire défaut. La prise en compte de cette possibilité dans le pricing d'un CDS et les stratégies pour se prémunir de ce risque de contrepartie font l'objet de ce rapport.
+
+Nous reprenons l'approche de Bielecki et al. \cite{A} en introduisant une probabilité instantanée de défaut de chaque entreprise fonction de  deux processus d'Itô corrélés. Nous prenons également en compte une probabilité exogène de défaut simultané des deux entreprises. Nous montrons plusieurs méthodes de calcul des prix et de la CVA avant de calibrer le modèle grâce à des données du marché. Enfin, nous avons implémenté le modèle et simulé les processus des prix et de la CVA pour différents paramètres.
 
 \end{abstract}
 
 \tableofcontents              % Table des matiÃ¨res
 
 % \part{Titre}                % Commencer une partie.
-.
-.
 
 
 \section{Présentation générale}               % Commencer une section, etc.
@@ -52,7 +58,7 @@ Nous appellerons un CDS sans risque un CDS tel que la probabilité de défaut de
  Dans le cadre de ce rapport, une firme 0 détient une unité de dette à risque de la firme 1, qui peut faire défaut.
  Dans ce cas la firme 1 rembourse ses dettes à hauteur de $R_{1} \in \left[ 0, 1 \right[$.
  Pour se couvrir contre ce risque, la firme 0 achète un CDS à la firme 2 et s'engage à verser une prime $\kappa$ en échange d'une assurance contre le défaut de 1 jusqu'à la date de maturité $T$.
- La valeur du contrat dépend cependant de la probabilité que l'assureur 2 fasse défaut avant son terme.
+ La valeur du contrat dépend cependant de la probabilité que l'assureur 2 fasse défaut avant la maturité.
 \\ \\
 Nous noterons donc :\\
 $\beta (t)$ Le taux d'actualisation\\
@@ -63,7 +69,7 @@ $\tau_{1} (\omega)$ Temps aléatoire du défaut de la firme 1\\
 $\tau_{2} (\omega)$ Temps aléatoire du défaut de la firme 2\\
 $\kappa$ La prime versée par la firme 0 à la firme 2 à chaque unité de temps\\
 $p (t, \omega)$ Le cash flow à venir après la date $t$ pour une réalisation $\omega$ de la firme 2 vers la firme 0 en supposant que 2 ne fasse jamais défaut\\
-$\pi (t, \omega)$ Le cash flow à venir après la date $t$ pour une réalisation $\omega$ de la firme 2 vers la firme détentrice du CDS dans le cas où 2 peut faire défaut\\
+$\pi (t, \omega)$ Le cash flow à venir après la date $t$ pour une réalisation $\omega$ de la firme 2 vers la firme 0 en supposant que 2 peut faire défaut\\
 $P (t, \omega) = \mathbb{E}_{t} [p]$ le cash-flow espéré conditionnellement à l'information connue à la date t, sans risque de contrepartie\\
 $\Pi (t, \omega) = \mathbb{E}_{t} [\pi]$ le cash-flow espéré conditionnellement à l'information connue à la date t, avec risque de contrepartie
 
@@ -74,7 +80,7 @@ Dans le cadre d'un marché sans possibilités d'arbitrage, le prix d'un CDS à l
 \subsubsection{Cash-flow pour un CDS sans risque}
 À la date $s$, la firme 0 doit verser à 2 la prime $\kappa$.
  Si de plus $\tau_1 = s$, alors 1 rembourse uniquement $R_1$ de sa dette et 2 verse donc les $1-R_1$ restant à 0.
- En remarquant que le coefficient d'actualisation entre $t\leq s$ est $\frac{\beta_{s}}{\beta_{t}}$, le cash-flow lié au CDS à la date s actualisé pour la date t est donc : 
+ En remarquant que le coefficient d'actualisation entre $t\leq s$ est $\frac{\beta_{s}}{\beta_{t}}$, le cash-flow lié au CDS à la date $s$ actualisé pour la date $t$ est donc : 
 \begin{equation*}
 \frac{- \beta(s) \kappa+ \beta(\tau_{1}) \left( 1 - R_{1} \right)  \mathbf{ 1 }_{\tau_{1} } \left( s \right) }{\beta (t)} 
 \end{equation*}
@@ -88,8 +94,8 @@ On reprend la précédente analyse avec cette fois deux nouveaux termes.
  Le premier correspond au défaut de 1 et 2 en même temps.
  Dans ce cas, 2 devrait rembourser $1-R_{1}$.
  Suite à son défaut, 2 ne rembourse que $R_{2}(1-R_{1})$, d'où un terme en $\mathbf{1}_{\tau_{1} = \tau_{2} = s} (1-R_{2})(1-R_{1})$.
- Par ailleurs, si seul 2 fait défaut avant 1, soit le contrat a un prix positif à cet instant et 2 doit donc a 0 $P_{s}^{+}$ mais ne lui rembourse que $R_{2}P_{s}^{+}$ car il est en défaut.
- Sinon, 0 rembourse la valeur du contrat $-P_{s}^{-}$.
+ Par ailleurs, si seul 2 fait défaut avant 1, soit le contrat a un prix positif à cet instant et 2 doit donc à 0 $P_{s}^{+}$ mais ne lui rembourse que $R_{2}P_{s}^{+}$ car il est en défaut.
+ Sinon, 0 rembourse la valeur du contrat $-P_{s}^{-}$. On remarque, comme dans Crépey et al. \cite{B}, qu'on pourrait s'attendre à ce que le montant à rembourser soit plutôt $\Pi (t) = \mathbb{E}_t (\pi (t))$ le prix réel du contrat. Cependant, on peut voir cet échange soit comme une somme prévue d'avance d'un commun accord à la signature du contrat soit comme le prix du marché auquel 0 va rembourser son défunt contract. Quoiqu'il en soit, la différence ne change rien aux propriétés qualitatives des CDS.
  En sommant jusqu'à la fin du contrat, ie.
  $T \wedge \tau_{1} \wedge \tau_{2}$, on trouve :
 \begin{multline}
@@ -97,8 +103,7 @@ On reprend la précédente analyse avec cette fois deux nouveaux termes.
 + \beta(\tau_{1}) R_{2} \left( 1 - R_{1} \right) \mathbf{1}_{t < \tau_{1} = \tau_{2} < T} 
 + \beta(\tau_{2}) \left( R_{2}P_{\tau_{2}}^{+} - P_{\tau_{2}}^{-} \right) \mathbf{1}_{t < \tau_{2} < T \wedge \tau_{1}}
 \end{multline}
-\pagebreak
-
+~~\\\\
 \section{Modèle}
 \subsection{Hypothèses}
 On modélise la santé financière des entreprises $i, i \in \lbrace 1, 2 \rbrace$ par deux processus d'Itô corrélés, 
@@ -106,16 +111,16 @@ On modélise la santé financière des entreprises $i, i \in \lbrace 1, 2 \rbrac
 dX^{1}_{t} &=& b_{1}(t)dt + \sigma_{1}(t)dW_{t}^{1} \\
 dX^{2}_{t} &=& b_{2}(t)dt + \sigma_{2}(t)\left(\rho dW_{t}^{1} + \sqrt{1 - \rho^{2}} dW_{t}^{2}\right)
 \end{eqnarray}
-Où $W_{1}$ et $W_{2}$ sont deux mouvements browniens indépendants et $\rho$ la corrélation entre les deux processus d'Itô (on vérifie sans peine que $\rho dW^{1} + \sqrt{1 - \rho^{2}} dW^{2}$ donne un mouvement brownien de covariance $\rho$ avec $W_{1}$, en calculant les fonctions caractéristiques des accroissements par exemple). On notera $\mathbb{X}$ la filtration canoniquement associée à $(X^{1}, X^{2})$. On suppose de plus que les processus $b_{i}, \sigma_{i}$ sont $\mathbb{X}$ adaptés et vérifient les conditions d'intégrabilité usuelles ($b_{i}$ intégrables, $\sigma_{i}$ de carré intégrable presque sûrement). \\ \\
+Où $W_{1}$ et $W_{2}$ sont deux mouvements browniens indépendants et $\rho$ la covariance de  $W_{1}$ et $W_{2}$ (on vérifie sans peine que $\rho dW^{1} + \sqrt{1 - \rho^{2}} dW^{2}$ donne un mouvement brownien de covariance $\rho$ avec $W_{1}$, en calculant les fonctions caractéristiques des accroissements par exemple). On notera $\mathbb{X}$ la filtration canoniquement associée à $(X^{1}, X^{2})$. On suppose de plus que les processus $b_{i}, \sigma_{i}$ sont $\mathbb{X}$ adaptés et vérifient les conditions d'intégrabilité usuelles ($b_{i}$ intégrables, $\sigma_{i}$ de carré intégrable presque sûrement). \\ \\
 On introduit ensuite trois variables de défaut qui sont les temps d'arrêt $d^{1}$, temps de défaut endogène de la firme 1, $d^{2}$, temps de défaut endogène de la firme 2 et $d^{3}$, temps de défaut commun exogène. On suppose que ce sont des variables exponentielles telles que :
 \begin{eqnarray}
-\mathbb{P}\left( d^{i} > t \mid \mathbb{X}_{t} \right) &=& e ^{ -\int \limits_{0}^{t} l_{i} (t, X^{i}_{s})ds}\,,\qquad  i = 1, 2 \\
+\mathbb{P}\left[ d^{i} > t \middle| \mathbb{X}_{t} \right] &=& e ^{ -\int \limits_{0}^{t} l_{i} (t, X^{i}_{s})ds}\,,\qquad  i = 1, 2 \\
 \mathbb{P}\left( d^{3} > t \right) &=&  e ^{ -\int \limits_{0}^{t} l_{3} (t)ds}
 \end{eqnarray}
 Avec la particularité que $l_{3}$ est une fonction déterministe qui ne dépend pas des $X^{(1,2)}$ et que $\lbrace d^{3} < t \rbrace$ est indépendant de $\mathbb{X}_{t} \vee \sigma(d^{1}) \vee \sigma(d^{2})$.
 On suppose en outre que les temps de défaut endogènes sachant $\mathbb{X}$ sont indépendants, ie. 
 \begin{equation*}
-\mathbb{E} \left(d^1 \mid \mathbb{X}_t \right) \perp \mathbb{E} \left(d^2 \mid \mathbb{X}_t \right) \,,\qquad  \forall t > 0
+\mathbb{E} \left[d^1 \middle| \mathbb{X}_t \right] \perp \mathbb{E} \left[d^2 \middle| \mathbb{X}_t \right] \,,\qquad  \forall t > 0
 \end{equation*}
 Les temps de défaut réellement observés pour chaque firme seront donc $\tau^{1} = d^{1} \wedge d^{3}$ et  $\tau^{2} = d^{2} \wedge d^{3}$. On utilisera en outre les fonctions indicatrices de défaut :
 \begin{equation*}
@@ -124,26 +129,35 @@ H^{i}_{t} = \mathbf{1}_{\left[0, t \right]} (\tau^{i})
 Et $\mathbb{H}$ la filtration associée. Enfin, on posera $\mathbb{F} = \mathbb{X} \vee \mathbb{H}$. \\ \\
 
 \subsection{Générateurs infinitésimaux et premières propriétés}
-On peut maintenant calculer le générateur du processus aléatoire $(X, H) = (X_{1}, X_{2}, H_{1}, H_{2})$. Pour $u \in \mathcal{C}^{1, 2}$ ($\mathcal{C}^{1}$ pour la première variable, $\mathcal{C}^{2}$ pour la seconde variable et sans régularité pour la troisième qui est dans un espace discret de toute façon), on a
+On calcule maintenant le générateur du processus aléatoire $(X, H) = (X_{1}, X_{2}, H_{1}, H_{2})$ pour $u \in \mathcal{C}^{1, 2}$ :
 \begin{equation*}
 \mathcal{A}u : (x,t)
-\rightarrow \space \lim_{h\downarrow 0} \frac {\mathbb{E}^{x}(u(t+h, X_{t+h}, e_{t+h}) - u(t,x,e)}{h}
+\rightarrow \space \lim_{h\downarrow 0} \frac {\mathbb{E}^{x}\left[u(t+h, X_{t+h}, e_{t+h}) - u(t,x,e) \right]}{h}
 \end{equation*}
+\\
+\begin{proposition}
+\begin{multline}
+\mathcal{A}u(t,x,e) = \partial_{t}  u(t,x,e) + \sum \limits_{1\leq i\leq2}l_i(t,x_i)(u(t,x,e^i) - u(t,x,e)) + l_3(t)(u(t,x,(1,1)) - u(t,x,e))\\
+ + \sum \limits_{1\leq i\leq2} \left( b_i(t,x_i)\partial_{x_i} u(t,x,e) + \frac{1}{2}\sigma_i^2(t,x_i)\partial^2_{x_i^2}u(t,x,e) \right) + \rho \sigma_1(t,x_1)\sigma_2(t,x_2)\partial^2_{x_1,x_2}u(t,x,e) 
+\end{multline}
+\end{proposition}
+ ~~\\ 
+\begin{proof}
 \begin{multline*}
-\mathcal{A}u(t,x,e) = \lim_{h\downarrow 0} \frac {\mathbb{E}^{x}(u(t+h, X_{t+h}, e_{t+h}) - u(t,x,e)}{h} \\
+\mathcal{A}u(t,x,e) = \lim_{h\downarrow 0} \frac {\mathbb{E}^{x}\left[u(t+h, X_{t+h}, e_{t+h}\right] - u(t,x,e)}{h} \\
 = \lim_{h\downarrow 0} \mathbb{E}\left[
-\mathbb{E} \left[ \frac{u (t+h, X_{t+h}, e_{t+h}) - u(t+h, X_{t+h}, e_{t})}{h} \mid \mathbb{X}_{t+h} \vee \mathbb{F}_{t}  \right] \mid X_t = x, \, H_t = e \right] \\
- + \mathbb{E} \left[ \frac {u(t+h, X_{t+h}, e_{t}) -  u(t, X_{t}, e_{t})}{h} \mid X_t = x, \, H_t = e \right]
+\mathbb{E} \left[ \frac{u (t+h, X_{t+h}, e_{t+h}) - u(t+h, X_{t+h}, e_{t})}{h} \middle| \mathbb{X}_{t+h} \vee \mathbb{F}_{t}  \right] \middle| X_t = x, \, H_t = e \right] \\
+ + \mathbb{E} \left[ \frac {u(t+h, X_{t+h}, e_{t}) -  u(t, X_{t}, e_{t})}{h} \middle| X_t = x, \, H_t = e \right]
 \end{multline*}
 Par conditionnement itéré. On décompose le premier terme en :
 \begin{multline*}
 \lim_{h\downarrow 0} \mathbb{E} \left[
-\mathbb{E} \left[ \frac{u (t+h, X_{t+h}, e_{t+h}) - u(t+h, X_{t+h}, e_{t})}{h} \mid \mathbb{X}_{t+h} \vee \mathbb{F}_{t}  \right] \mid X_t = x, \, H_t = e \right] \\
-=  \lim_{h\downarrow 0} \mathbb{E} \left[ \sum \limits_{\epsilon \in \lbrace 0, 1 \rbrace^{2}} \mathbb{E} \left[ \frac{u (t+h, X_{t+h}, \epsilon) - u(t+h, X_{t+h}, e)}{h} \mathbf{1}_{e_{t+h} = \epsilon} \mid \mathbb{X}_{t+h} \vee \mathbb{F}_{t}  \right] \vert X_t = x, \, H_t = e \right]
+\mathbb{E} \left[ \frac{u (t+h, X_{t+h}, e_{t+h}) - u(t+h, X_{t+h}, e_{t})}{h} \middle| \mathbb{X}_{t+h} \vee \mathbb{F}_{t}  \right] \middle| X_t = x, \, H_t = e \right] \\
+=  \lim_{h\downarrow 0} \mathbb{E} \left[ \sum \limits_{\epsilon \in \lbrace 0, 1 \rbrace^{2}} \mathbb{E} \left[ \frac{u (t+h, X_{t+h}, \epsilon) - u(t+h, X_{t+h}, e)}{h} \mathbf{1}_{e_{t+h} = \epsilon} \middle| \mathbb{X}_{t+h} \vee \mathbb{F}_{t}  \right] \middle| X_t = x, \, H_t = e \right]
 \end{multline*}
-Au plus trois transitions entre $\epsilon$ et e son possibles : défaut de 1, défaut de 2 et défaut simultanée. On posera, pour $e  \in \lbrace 0, 1 \rbrace^{2}$, $e^{i}$ le vecteur dont on a remplacé la i-ième coordonnée par 1. Alors, si $e \neq e^{i}$
+Au plus trois transitions entre $\epsilon$ et e son possibles : défaut de 1, défaut de 2 et défaut simultané. On posera, pour $e  \in \lbrace 0, 1 \rbrace^{2}$, $e^{i}$ le vecteur dont on a remplacé la i-ième coordonnée par 1. Alors, si $e \neq e^{i}$
 \begin{eqnarray*}
-\mathbb{P} \left(e_{t+h} = e^{i} \mid \mathbb{X}_{t+h} \vee \mathbb{F}_{t}  \right) = 1 - e^{ -\int \limits_{t}^{t+h} l_{i} (X^{i}_{s}, s)ds} + o(h)
+\mathbb{P} \left(e_{t+h} = e^{i} \middle| \mathbb{X}_{t+h} \vee \mathbb{F}_{t}  \right) = 1 - e^{ -\int \limits_{t}^{t+h} l_{i} (X^{i}_{s}, s)ds} + o(h)
 \end{eqnarray*}
 Le o(h) rendant compte de deux transitions successives (la probabilité d'un tel événement est en $\mathcal{O} (h^2)$). On trouve le même type d'égalité pour le défaut commun et, en remarquant que pour $e = e^{i}$ la différence des fonctions u est de toute façon nulle, en faisant tendre h vers 0 et par continuité du processus d'Itô qui vaut x en t, on trouve que le premier terme vaut :
 \begin{equation}
@@ -158,7 +172,8 @@ Encore une fois, par continuité des différentes fonctions (hypothèse sur u à
 \mathcal{A}u(t,x,e) = \partial_{t}  u(t,x,e) + \sum \limits_{1\leq i\leq2}l_i(t,x_i)(u(t,x,e^i) - u(t,x,e)) + l_3(t)(u(t,x,(1,1)) - u(t,x,e))\\
  + \sum \limits_{1\leq i\leq2} \left( b_i(t,x_i)\partial_{x_i} u(t,x,e) + \frac{1}{2}\sigma_i^2(t,x_i)\partial^2_{x_i^2}u(t,x,e) \right) + \rho \sigma_1(t,x_1)\sigma_2(t,x_2)\partial^2_{x_1,x_2}u(t,x,e) 
 \end{multline}
-
+\end{proof}
+~~\\\\
 \section{Pricing}
 \subsection{CDS non risqué}
 Le prix du CDS étant donné par l'espérance du cash-flow actualisé, on cherche à calculer $P_{t} = \mathbb{E}_{t} \left[ p^{t} \right]$ où $p^{t}$ est donné par l'équation (1). Pour cela, on sépare le processus $P_{t}$ en une intégrale par rapport au temps et un terme d'espérance nulle.
@@ -168,66 +183,197 @@ Ainsi, \\
 %\text{Où le dernier terme est, pour} \omega \text{fixé, l'intégrale de Stieltjes par rapport à la fonction croissante} H^{1}_{s}. \\
 =&\int \limits_{t}^{T}\beta(s)(1-H^{1}_{s})p(s, X^{1}_s)ds + (1-R_{1})\int \limits_{t}^{T} \beta(s) dM_{s}^{1} \\
 \end{eqnarray*}
-En introduisant
-\begin{eqnarray*}
+avec
+\begin{eqnarray}
 p(s, x) :&=& (1-R_1)q_1(t,x) - \kappa \\
 M_t^i :&=& H_t^i - \int \limits_0^t q_i (s, X_s, H_s) ds
-\end{eqnarray*}
-Or, le processus $M_t^i$ ainsi défini est une martingale puisque, dans le cas général, $u(t, X^i_t, H^i_t) - \int \limits_0^t \mathcal{A}u(s, X^i_s, H^i_s)ds$ est une martingale pour $u \in \mathcal{C}^{1, 2}$ à dérivées et sauts bornés. \\
-En effet,
+\end{eqnarray}
+Or, le processus $M_t^i$ ainsi défini est une martingale : \\
+\begin{lemma}
+Dans le cas général, $u(t, X^i_t, H^i_t) - \int \limits_0^t \mathcal{A}u(s, X^i_s, H^i_s)ds$ est une martingale pour $u \in \mathcal{C}^{1, 2}$ à dérivées et sauts bornés.
+\end{lemma}
+\begin{proof}
 \begin{multline*}
 d_t\mathbb{E}_s \left[ u(t, X^i_t, H^i_t) - \int \limits_0^t \mathcal{A}u(r, X^i_r, H^i_r)dr \right] \\
 = \lim \limits_{h \rightarrow 0} \mathbb{E}_s \left[ \frac{\mathbb{E}_t (u(t+h, X^i_{t+h}, H^i_{t+h})) - u(t, X^i_t, H^i_t)}{h} - \mathcal{A}u(t,X^i_t,H^i_t)\right]
 = 0
 \end{multline*}
-Par conditionnements itérés et en intervertissant limite et intégrale sous les hypothèses appropriées La formule pour le générateur aléatoire montre alors qu'il est borné et qu'on peut intervertir pour le terme avec l'intégrale. De même, les formules de 2.2 permettent de montrer que le premier terme est borné. En appliquant le résultat à la projection sur la dernière variable, on obtient bien que $M^i_t$ est une martingale. \\ \\
+Par conditionnements itérés et en intervertissant limite et intégrale sous les hypothèses appropriées La formule pour le générateur aléatoire montre alors qu'il est borné et qu'on peut intervertir pour le terme avec l'intégrale. De même, les formules de 2.2 permettent de montrer que le premier terme est borné. En appliquant le résultat à la projection sur la dernière variable, on obtient bien que $M^i_t$ est une martingale.
+\end{proof}
+~~\\
 Il suit par un théorème d'intégration par rapport à une martingale bornée que l'espérance en t du second terme de (8) est nulle et donc :
 \begin{equation*}
 \mathbb{E}_{t} \left[ \beta(t)p_{t} \right] =  \mathbb{E}_{t} \left[ \int \limits_{t}^{T}\beta(s)(1-H^{1}_{s})p(s, X^{1}_s)ds \right]
 \end{equation*}
-Or, le second terme de cette équation s'annule quand $H^i_t = 1$. On peut donc définir la variable aléatoire
+\begin{proposition}
+Le prix d'un CDS non risqué admet la représentation suivante :
 \begin{equation*}
-V = \frac{\mathbb{E}_{t} \left[ \int \limits_{t}^{T}\beta(s)(1-H^{1}_{s})p(s, X^{1}_s)ds \right]}{\beta(t)(1- H^i_t)}
+P_{t}  = (1 - H^1_t)v(t,X_t^1)
 \end{equation*}
-Avec $V=0$ si $H^i_t = 1$. Par la propriété de Markov de X et H, V est $\sigma(X_t^i,\, H^i_t)$ mesurable, ie. $V = f(t,X^i_t, H^i_t)$ En posant $v(t, X^i_t) = f(t,X^i_t, 0)$ on obtient 
-\begin{equation*}
-\beta(t)P_{t} =  \mathbb{E}_{t} \left[ \int \limits_{t}^{T}\beta(s)(1-H^{1}_{s})p(s, X^{1}_s)ds \right] = (1 - H^i_t)\beta(t)v(t,X_t^i)
-\end{equation*}
-Par ailleurs, si v est suffisamment différentiable, on trouve en calculant le générateur infinitésimal des deux membres et grâce au résultat de 2.2 :
+Avec $v$ solution de :
 \begin{equation}
 \left\{
 \begin{split}
-v(T, x) = 0,\ x \in \mathbb{R} \\
-\left(\partial_t + b_i(t,x_i)\partial_{x_i} + \frac{1}{2}\sigma_i^2(t,x_i)\partial^2_{x^2_i}\right)v(t,x_i) - (r+q_i(t,x_i))v(t,x_i) + p(t,x_i) =0, \ t\in\left[0,T\right[,\ x_i \in \mathbb{R}
+v(T, x) &=& 0,\qquad \qquad \quad \ \ x \in \mathbb{R} \\
+\left(\partial_t + b_1(t,x)\partial_{x} + \frac{1}{2}\sigma_1^2(t,x)\partial^2_{x^2}\right)v(t,x) - (r+q_1(t,x))v(t,x) \\+ p(t,x) &=&0, \ t\in\left[0,T\right[,\ \ x \in \mathbb{R}
 \end{split}
 \right.
 \end{equation}
-Sous certaines hypothèses de régularité et de croissance (à expliciter), on en déduit par le théorème de Feynman-Kac :
+et
 \begin{equation}
-v(t,x) = \mathbb{E} \left[ \int \limits_t^T e^{-\int \limits_{t}^{s} (r + q_i(r, X^i_r))dr} p(s, X^i_s)ds \mid X^i_t = x\right]
+v(t,x) = \mathbb{E} \left[ \int \limits_t^T e^{-\int \limits_{t}^{s} (r + q_1(\zeta, X^1_\zeta))d\zeta} p(s, X^1_s)ds \middle| X^1_t = x\right]
 \end{equation}
+\end{proposition}
+~~\\
+\begin{proof}
+
+Comme la fonction $p$ définie en (10) est régulière, l'équation
+\begin{equation*}
+\left\{
+\begin{split}
+v(T, x) &=& 0,\qquad \qquad \quad \ \ x \in \mathbb{R} \\
+\left(\partial_t + b_1(t,x)\partial_{x} + \frac{1}{2}\sigma_1^2(t,x)\partial^2_{x^2}\right)v(t,x) - (r+q_1(t,x))v(t,x) \\+ p(t,x) &=&0, \ t\in\left[0,T\right[,\ \ x \in \mathbb{R}
+\end{split}
+\right.
+\end{equation*}
+admet une unique solution $v \in  \mathcal{C}^{1, 2}$.  \\ 
+En appliquant la proposition 2.1 à la fonction $f : (x,e,t) \mapsto (1 - H^1_t)\beta(t) v(t,X^1_t)$, on trouve :
+\begin{equation*}
+\mathcal{A}f(x,e,t) = -\beta(t) (1 - H^1_t) p(t,x)
+\end{equation*}
+Ainsi, d'après le lemme 3.1,  
+\begin{equation*}
+ f(X_t^1, e, t) + \int \limits_{0}^{t}\beta(s)(1-H^{1}_{s})p(s, X^{1}_s)ds 
+\end{equation*}
+est une martingale, de même que
+\begin{multline*}
+ f(X_t^1, e, t) - \mathbb{E}_t \left[ \int \limits_{t}^{T}\beta(s)(1-H^{1}_{s})p(s, X^{1}_s)ds \right]\\ = f(X_t^1, e, t) + \int \limits_{0}^{t}\beta(s)(1-H^{1}_{s})p(s, X^{1}_s)ds  - \mathbb{E}_t \left[  \int \limits_{0}^{T}\beta(s)(1-H^{1}_{s})p(s, X^{1}_s)ds \right]
+\end{multline*}
+puisque le dernier terme est une martingale. On en déduit 
+\begin{equation*}
+\mathbb{E}_t \left[f(X_T^1, e, T) - \int \limits_{T}^{T}\beta(s)(1-H^{1}_{s})p(s, X^{1}_s)ds \right] = 0 = f(X^1_t, e, t) - \mathbb{E}_t \left[ \int \limits_{t}^{T}\beta(s)(1-H^{1}_{s})p(s, X^{1}_s)ds \right]
+\end{equation*}
+ie.
+\begin{equation*}
+\beta(t)P_{t}  = (1 - H^i_t)\beta(t)v(t,X_t^i)
+\end{equation*}
+Enfin, les hypothèses de Feynman-Kac étant vérifiées pour $v$, on trouve :
+\begin{equation*}
+v(t,x) = \mathbb{E} \left[ \int \limits_t^T e^{-\int \limits_{t}^{s} (r + q_i(\zeta, X^i_\zeta))d\zeta} p(s, X^i_s)ds \middle| X^i_t = x\right]
+\end{equation*}
+\end{proof}
 
 \subsection{CDS risqué}
-(parallèle rapide)
-%Le même cheminement donne, en posant
-%\begin{equation}
-%\pi (t,x) = (1-R_1) \left[ l_1 (t,x_1) + R_2 l_3(t) \right] + l_2 %\left[ R_2 v^{+}(t,x_1) - v^{-}(t,x_1) \right] - \kappa
-%\end{equation}
-% \subsubsection{Titre}      % Encore plus petite
+On trouve des formules analogues en prenant cette fois :
+\begin{equation*}
+p(t,x) = (1-R_1)\left[l_1(t,x_1) + R_2 l_3 (t) \right] + l_2 (t,x_2) \left[R_2 v^+ (t,x_1) - v^-(t,x_1)\right] - \kappa
+\end{equation*}
+Alors, comme précédemment,
+\begin{equation*}
+\beta(t)\pi^t = \int \limits_t^T \beta(s) (1-H_s^1) (1-H_s^2) p(s,X_s) ds + M_t
+\end{equation*}
+Avec $M_t$ d'espérance nulle.\\ \\
+Il suit, comme précédemment, qu'il existe une fonction $u$ telle que :
+\begin{equation*}
+\Pi_t = (1 - H^1_t)(1-H^2_t)u(t,X_t)
+\end{equation*}
+Par ailleurs, $u$ est solution de l'équation aux dérivées partielles :
+\begin{equation}
+\left\{
+\begin{split}
+u(T, x) &=& 0,\qquad \qquad \qquad x \in \mathbb{R}^2 \\
+\left(\partial_t +\sum \limits_{1 \leq i \leq 2} ( b_i(t,x_i)\partial_{x_i} + \frac{1}{2}\sigma_i^2(t,x_i)\partial^2_{x^2_i}) + \rho \sigma_1 \sigma_2 \partial^2_{x_1,x_2}\right)v(t,x_i) \\
+- (r+l(t,x))u(t,x) + p(t,x) &=& 0,\quad \ t\in\left[0,T\right[,\ x \in \mathbb{R}^2
+\end{split}
+\right.
+\end{equation}
+Ou encore, d'après le théorème de Feynman-Kac :
 
-% \paragraph{Titre}           % Toutes petites sections (le nom \paragraph
-                              % n'est pas trÃ¨s bien choisi)
+\begin{equation}
+u(t,x) = \mathbb{E}\left[\int \limits_t^T e^{-\int \limits_t^s (r + l(\zeta, X_\zeta))d\zeta} p (s, X_s) ds \middle| X_t = x \right]
+\end{equation}
+~~\\\\
+\subsection{Calcul de la CVA}
+Il existe donc une différence de prix (CVA) entre un CDS risqué et un CDS non risqué. Il est en théorie possible de la calculer grâce par une méthode de Monte-Carlo sur les équations (13) et (15) ou en résolvant les systèmes (12) et (14). Cependant, ces méthodes sont trop coûteuses en calculs. Nous montrons donc que la CVA vérifie une équation plus simple qui fait intervenir le prix d'un CDS non risqué. Ce dernier sera calculer par la méthode présentée dans l'article --FAIRE BIBILIO 1--, proposition 6.1. \\ \\
+Dans ce qui suit on notera $\xi_{\tau_2}$ l'exposition de 0 lors du défaut de 2, ie. la perte subie par 0 quand 2 fait défaut
+\begin{equation}
+\xi_{\tau_2} = (1-R_1)(1-R_2) \mathbf{1}_{\tau_1 = \tau_2 \leq T} + (1 - R_2)P_{\tau_2}^+\mathbf{1}_{\tau_2 < \tau_1, \tau_2 \leq T}
+\end{equation}
+et la CVA (Credit valuation adjustment) comme la différence de prix :
+\begin{eqnarray*}
+\text{CVA}_t &=& \mathbf{1}_{t < \tau_2} \mathbb{E}_t \left[ \beta_{\tau_2}\xi_{(\tau_2)} \right] \\
+&=&P_t - \Pi_t \, , \ t < \tau_2
+\end{eqnarray*}
+La dernière équation est un résultat intuitif que l'on peut montrer par un calcul relativement aisé. 
+\begin{proposition}
+Pour $t < \tau_2 \wedge \tau_1$,
+\begin{equation}
+CVA_t = \mathbb{E}_t \left[ \int \limits_t^T (1-R_2)\beta_s\left((1-R_1)l_3(s) + v^+(s, X^1_s)l_2(s,X^2_s)\right)e^{-\int \limits_t^sl(\zeta, X)d\zeta}ds \right]
+\end{equation}
+\end{proposition}
 
-% \subparagraph{Titre}        % La derniÃ¨re
+\begin{proof}
+Pour évaluer la CVA, nous allons devoir calculer 
+\begin{eqnarray*}
+\mathbb{E}_t \left[ \beta_{\tau_2} \mathbf{1}_{\tau_1 = \tau_2 \leq T} \right] &=& \mathbb{E} \left[ \beta_{\tau_2} \mathbb{E} \left[ \mathbf{1}_{\tau_1 = \tau_2 \leq T} \middle| \sigma (\tau_2) \vee \mathbb{X}_T \right] \middle| \mathbb{F}_t \right] \\
+\text{et} \qquad
+\mathbb{E}_t \left[ \beta_{\tau_2} \mathbf{1}_{\tau_2 < \tau_1,\, \tau_2 \leq T} \right] &=& \mathbb{E} \left[ \beta_{\tau_2} \mathbb{E} \left[ \mathbf{1}_{\tau_2 < \tau_1,\, \tau_2 \leq T} \middle| \sigma (\tau_2) \vee \mathbb{X}_T \right] \middle| \mathbb{F}_t \right]
+\end{eqnarray*}
+On pose donc
+\begin{eqnarray*}
+\Phi (\tau_2) &=& \mathbb{E} \left[ \mathbf{1}_{\tau_1 = \tau_2 \leq T} \middle| \sigma (\tau_2) \vee \mathbb{X}_T \right] \\
+\Psi (\tau_2) &=& \mathbb{E} \left[ \mathbf{1}_{\tau_2 < \tau_1,\, \tau_2 \leq T} \middle| \sigma (\tau_2) \vee \mathbb{X}_T \right] 
+\end{eqnarray*}
+et on évalue les deux espérances 
+\begin{eqnarray*}
+\mathbb{E} \left[ \Phi (\tau_2) \mathbf{1}_{\tau_2 \leq t} \middle| \mathbb{X}_T \right] &=& \int \limits_0^t \Phi(s) q_2(s, X^2_s)e^{-\int \limits_0^s q_2(\zeta, X^2_\zeta)d\zeta} ds \\
+\mathbb{E} \left[ \Psi (\tau_2) \mathbf{1}_{\tau_2 \leq t} \middle| \mathbb{X}_T \right] &=& \int \limits_0^t \Psi(s) q_2(s, X^2_s)e^{-\int \limits_0^s q_2(\zeta, X^2_\zeta)d\zeta} ds \\
+\end{eqnarray*}
+d'après la lois conditionnelle de $\tau_2$ sachant $\mathbb{X}_T$. Mais on sait aussi que, en posant $l(s, X_s) = l_1(s, X^1_s) + l_2(s, X^2_s) +l_3(s)$
+\begin{eqnarray*}
+\mathbb{E} \left[ \Phi (\tau_2) \mathbf{1}_{\tau_2 \leq t} \middle| \mathbb{X}_T \right] &=&  \mathbb{E} \left[ \mathbb{E} \left[ \mathbf{1}_{\tau_1 = \tau_2 \leq T} \mathbf{1}_{\tau_2 \leq t} \middle| \mathbb{X}_T \vee \sigma (\tau_2) \right] \middle| \mathbb{X}_T \right] \\
+&=& \mathbb{E} \left[ \mathbf{1}_{\tau_1 = \tau_2 \leq T} \mathbf{1}_{\tau_2 \leq t} \middle| \mathbb{X}_T \right] \\
+&=& \int \limits_0^t l_3(s) e^{-\int \limits_0^s l(\zeta, X_\zeta) d\zeta} ds \\
+\text{et} \qquad \mathbb{E} \left[ \Psi (\tau_2) \mathbf{1}_{\tau_2 \leq t} \middle| \mathbb{X}_T \right] &=& \mathbb{E} \left[ \mathbf{1}_{\tau_2 < \tau_1,\, \tau_2 \leq T} \mathbf{1}_{\tau_2 < t} \middle| \mathbb{X}_T \right] \\
+&=& \int \limits_0^t l_2 (s, X^2_s) e^{-\int \limits_0^s l(\zeta, X_\zeta)} ds
+\end{eqnarray*}
+En dérivant chaque expression, on obtient
+\begin{equation*}
+\Phi (t) = \frac{l_3(t) e^{-\int \limits_0^t l(s, X_s)ds}}{q_2(t)}e^{\int \limits_0^t q_2 (s) ds} \quad , \quad 
+\Psi(t) =  \frac{l_2(t) e^{-\int \limits_0^t l(s, X_s)ds}}{q_2(t)}e^{\int \limits_0^t q_2 (s) ds}
+\end{equation*}
+Ce qui conclut la preuve en utilisant des projections itérées et la loi de $\tau_2$ conditionnellement à $\mathbb{X}_T \vee \mathbb{F}_t$.
+\end{proof}
+~~\\\\
+\section{Simulations numériques}
+\subsection{Calibration}
+Comme dans Bielecki et al. \cite{A} nous choisissons comme processus d'Itô $X^i$ des processus de la forme
+\begin{equation*}
+dX^i_t = \eta (\mu_i - X^i_t)dt + \nu \sqrt{X^i_t}dW^i_t
+\end{equation*}
+et comme intensités de défaut des fonctions simples de la forme
+\begin{equation*}
+q_i(t,x_i) = f_i(t) + \delta x_i
+\end{equation*}
+Les processus $X^i$ sont donc des indicateurs des difficultés financières d'une firme (une valeur haute est mauvais signe). Il va de soi que, comme $q_i(t,x_i) = l_3 (t) + l_1 (t, x_i)$, on prendra $f_i(t) \geq l_i(t)$. On approche toutes les grandeurs par des fonctions constantes par morceaux. Dans ce modèle, on cherche maintenant à calibrer les valeurs de $X_0^i$, $f_i$ et $\mu_i$. On pourra donc par exemple étudier les variation si la volatilité est plus importante que prévue (ie. le comportement pour $\nu$ croissant) ou, au contraire, si la firme est plus stable financièrement ($\eta$ plus grand). \\ \\
+En utilisant la partie 6.3 de Bielecki et al. \cite{A}, on reconstruit dans un premier temps la fonction de répartition des temps de défaut $(\tau_1, \tau_2)$ à partir d'un historique de temps de défauts (on approche les fonctions de répartition par des fonctions par morceaux). On en déduit l'intensité de la probabilité de défaut jointe $l_3(t)$ puis les fonctions $f_i$ ainsi que les $\mu_i$ et $X^i_0$.
+\subsection{CDS non risqué}
+On utilise la proposition 6.1 de Bielecki et al. \cite{A} pour simuler la valeur d'un CDS non risqué.
+\subsection{CDS risqué et CVA}
+On calcule la CVA par une méthode de Monte-Carlo pour évaluer la formule (17).
 
-% \appendix                   % CommenÃ§ons les annexes
-
-% \section{Titre}             % Annexe A
-
-% \section{Titre}             % Annexe B
-
-% \listoftables               % Liste des tableaux
+\begin{thebibliography}{9}
+\bibitem{A}
+          T.R Bielecki, S. Crépey, M. Jeanblanc, B. Zargari
+          \emph{Valuation and Hedging of a CDS Counterparty Exposure in a Markov Chain Copula Model}.
+          2012.
+\bibitem{B}
+          S. Crépey, M. Jeanblanc, B. Zargari
+          \emph{Counterparty Risk on a CDS in a Markov Chain Copula Model with Joint Defaults}.
+          2009.
+\end{thebibliography}
 
 \end{document}
+
 
 
