@@ -294,7 +294,7 @@ u(t,x) = \mathbb{E}\left[\int \limits_t^T e^{-\int \limits_t^s (r + l(\zeta, X_\
 \end{equation}
 ~~\\\\
 \subsection{Calcul de la CVA}
-Il existe donc une différence de prix (CVA) entre un CDS risqué et un CDS non risqué. Il est en théorie possible de la calculer grâce par une méthode de Monte-Carlo sur les équations (13) et (15) ou en résolvant les systèmes (12) et (14). Cependant, ces méthodes sont trop coûteuses en calculs. Nous montrons donc que la CVA vérifie une équation plus simple qui fait intervenir le prix d'un CDS non risqué. Ce dernier sera calculer par la méthode présentée dans l'article --FAIRE BIBILIO 1--, proposition 6.1. \\ \\
+Il existe donc une différence de prix (CVA) entre un CDS risqué et un CDS non risqué. Il est en théorie possible de la calculer grâce par une méthode de Monte-Carlo sur les équations (13) et (15) ou en résolvant les systèmes (12) et (14). Cependant, ces méthodes sont trop coûteuses en calculs. Nous montrons donc que la CVA vérifie une équation plus simple à évaluer qui fait intervenir le prix d'un CDS non risqué. Ce dernier sera calculé par la méthode présentée dans \cite{A}, proposition 6.1. \\ \\
 Dans ce qui suit on notera $\xi_{\tau_2}$ l'exposition de 0 lors du défaut de 2, ie. la perte subie par 0 quand 2 fait défaut
 \begin{equation}
 \xi_{\tau_2} = (1-R_1)(1-R_2) \mathbf{1}_{\tau_1 = \tau_2 \leq T} + (1 - R_2)P_{\tau_2}^+\mathbf{1}_{\tau_2 < \tau_1, \tau_2 \leq T}
@@ -304,11 +304,11 @@ et la CVA (Credit valuation adjustment) comme la différence de prix :
 \text{CVA}_t &=& \mathbf{1}_{t < \tau_2} \mathbb{E}_t \left[ \beta_{\tau_2}\xi_{(\tau_2)} \right] \\
 &=&P_t - \Pi_t \, , \ t < \tau_2
 \end{eqnarray*}
-La dernière équation est un résultat intuitif que l'on peut montrer par un calcul relativement aisé. 
+La dernière équation est un résultat intuitif que l'on peut montrer par un calcul relativement aisé. Enfin, nous posons $l(s, X_s) = l_1(s, X^1_s) + l_2(s, X^2_s) +l_3(s)$.
 \begin{proposition}
 Pour $t < \tau_2 \wedge \tau_1$,
 \begin{equation}
-CVA_t = \mathbb{E}_t \left[ \int \limits_t^T (1-R_2)\beta_s\left((1-R_1)l_3(s) + v^+(s, X^1_s)l_2(s,X^2_s)\right)e^{-\int \limits_t^sl(\zeta, X)d\zeta}ds \right]
+CVA_t = \mathbb{E}_t \left[ \int \limits_t^T (1-R_2)\beta_s\left((1-R_1)l_3(s) + P^+(s, X^1_s)l_2(s,X^2_s)\right)e^{-\int \limits_t^sl(\zeta, X)d\zeta}ds \right]
 \end{equation}
 \end{proposition}
 
@@ -329,7 +329,7 @@ et on évalue les deux espérances
 \mathbb{E} \left[ \Phi (\tau_2) \mathbf{1}_{\tau_2 \leq t} \middle| \mathbb{X}_T \right] &=& \int \limits_0^t \Phi(s) q_2(s, X^2_s)e^{-\int \limits_0^s q_2(\zeta, X^2_\zeta)d\zeta} ds \\
 \mathbb{E} \left[ \Psi (\tau_2) \mathbf{1}_{\tau_2 \leq t} \middle| \mathbb{X}_T \right] &=& \int \limits_0^t \Psi(s) q_2(s, X^2_s)e^{-\int \limits_0^s q_2(\zeta, X^2_\zeta)d\zeta} ds \\
 \end{eqnarray*}
-d'après la lois conditionnelle de $\tau_2$ sachant $\mathbb{X}_T$. Mais on sait aussi que, en posant $l(s, X_s) = l_1(s, X^1_s) + l_2(s, X^2_s) +l_3(s)$
+d'après la lois conditionnelle de $\tau_2$ sachant $\mathbb{X}_T$. Mais on sait aussi que
 \begin{eqnarray*}
 \mathbb{E} \left[ \Phi (\tau_2) \mathbf{1}_{\tau_2 \leq t} \middle| \mathbb{X}_T \right] &=&  \mathbb{E} \left[ \mathbb{E} \left[ \mathbf{1}_{\tau_1 = \tau_2 \leq T} \mathbf{1}_{\tau_2 \leq t} \middle| \mathbb{X}_T \vee \sigma (\tau_2) \right] \middle| \mathbb{X}_T \right] \\
 &=& \mathbb{E} \left[ \mathbf{1}_{\tau_1 = \tau_2 \leq T} \mathbf{1}_{\tau_2 \leq t} \middle| \mathbb{X}_T \right] \\
