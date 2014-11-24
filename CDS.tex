@@ -273,11 +273,7 @@ Alors, comme précédemment,
 \beta(t)\pi^t = \int \limits_t^T \beta(s) (1-H_s^1) (1-H_s^2) p(s,X_s) ds + M_t
 \end{equation*}
 Avec $M_t$ d'espérance nulle.\\ \\
-Il suit, comme précédemment, qu'il existe une fonction $u$ telle que :
-\begin{equation*}
-\Pi_t = (1 - H^1_t)(1-H^2_t)u(t,X_t)
-\end{equation*}
-Par ailleurs, $u$ est solution de l'équation aux dérivées partielles :
+Il suit par ailleurs, comme précédemment, qu'il existe une fonction $u$ telle que :
 \begin{equation}
 \left\{
 \begin{split}
@@ -287,12 +283,17 @@ u(T, x) &=& 0,\qquad \qquad \qquad x \in \mathbb{R}^2 \\
 \end{split}
 \right.
 \end{equation}
-Ou encore, d'après le théorème de Feynman-Kac :
-
+et on montre que pour cette fonction
+\begin{equation*}
+\Pi_t = (1 - H^1_t)(1-H^2_t)u(t,X_t)
+\end{equation*}
+Le théorème de Feynman-Kac donne également la représentation suivante :
 \begin{equation}
 u(t,x) = \mathbb{E}\left[\int \limits_t^T e^{-\int \limits_t^s (r + l(\zeta, X_\zeta))d\zeta} p (s, X_s) ds \middle| X_t = x \right]
 \end{equation}
 ~~\\\\
+
+
 \subsection{Calcul de la CVA}
 Il existe donc une différence de prix (CVA) entre un CDS risqué et un CDS non risqué. Il est en théorie possible de la calculer grâce par une méthode de Monte-Carlo sur les équations (13) et (15) ou en résolvant les systèmes (12) et (14). Cependant, ces méthodes sont trop coûteuses en calculs. Nous montrons donc que la CVA vérifie une équation plus simple à évaluer qui fait intervenir le prix d'un CDS non risqué. Ce dernier sera calculé par la méthode présentée dans \cite{A}, proposition 6.1. \\ \\
 Dans ce qui suit on notera $\xi_{\tau_2}$ l'exposition de 0 lors du défaut de 2, ie. la perte subie par 0 quand 2 fait défaut
